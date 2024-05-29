@@ -11,11 +11,19 @@ namespace Checkers
         White,
         Black
     }
-    public enum FigureType 
+    public enum FigureType
+    {
+        Checker,
+        King
+    }
     internal class Figure
     {
-        public Figure(FigureColor fc, int x, int y) : figureColor(fc) { }
+        public Figure(FigureColor fc)
+        {
+            figureColor = fc;
+        }
+       
+        FigureType figureType { get; set; }
         FigureColor figureColor { get; set; }
-        int x; 
     }
 }

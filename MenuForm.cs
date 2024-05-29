@@ -6,5 +6,13 @@ namespace Checkers
         {
             InitializeComponent();
         }
+
+        private void EasyButton_Click(object sender, EventArgs e)
+        {
+            MainWindowForm mainWindow = new MainWindowForm();
+            mainWindow.Show();
+            this.Hide();
+
+        }
     }
 }
