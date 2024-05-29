@@ -14,12 +14,13 @@ namespace Checkers
     {
         private const int BoardSize = 8;
         private Button[,] boardButtons = new Button[BoardSize, BoardSize];
+        private FigureColor playerFigureColor = FigureColor.White;
 
         public MainWindowForm()
         {
             InitializeComponent();
             this.Text = "Шашки";
-            this.Size = new Size(500, 500);
+            this.Size = new Size(480, 503);
             InitializeBoard();
         }
 
@@ -57,10 +58,9 @@ namespace Checkers
                     else
                     {
                         button.BackColor = Color.Black;
+                        button.Click += Button_Click;
                     }
 
-                    // Добавление обработчика клика
-                    button.Click += Button_Click;
 
                     // Добавление кнопки в панель
                     boardPanel.Controls.Add(button);

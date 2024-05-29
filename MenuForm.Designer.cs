@@ -41,9 +41,9 @@
             titleLabel.BackColor = Color.FromArgb(0, 0, 0, 0);
             titleLabel.BorderStyle = BorderStyle.Fixed3D;
             titleLabel.Font = new Font("Ink Free", 47.9999962F, FontStyle.Bold | FontStyle.Italic | FontStyle.Underline, GraphicsUnit.Point);
-            titleLabel.Location = new Point(12, 35);
+            titleLabel.Location = new Point(29, 26);
             titleLabel.Name = "titleLabel";
-            titleLabel.Size = new Size(569, 101);
+            titleLabel.Size = new Size(459, 81);
             titleLabel.TabIndex = 0;
             titleLabel.Text = "Checkers Delta";
             // 
@@ -51,43 +51,43 @@
             // 
             easyButton.Anchor = AnchorStyles.Top;
             easyButton.AutoSize = true;
+            easyButton.BackColor = Color.FromArgb(230, 253, 230);
             easyButton.Cursor = Cursors.Hand;
             easyButton.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold, GraphicsUnit.Point);
             easyButton.ForeColor = SystemColors.ActiveCaptionText;
-            easyButton.Location = new Point(207, 171);
-            easyButton.Margin = new Padding(3, 4, 3, 4);
+            easyButton.Location = new Point(181, 128);
             easyButton.Name = "easyButton";
-            easyButton.Size = new Size(155, 57);
+            easyButton.Size = new Size(136, 43);
             easyButton.TabIndex = 1;
             easyButton.Text = "EASY👍";
-            easyButton.UseVisualStyleBackColor = true;
+            easyButton.UseVisualStyleBackColor = false;
             easyButton.Click += EasyButton_Click;
             // 
             // hardButton
             // 
+            hardButton.BackColor = Color.FromArgb(253, 230, 230);
             hardButton.Cursor = Cursors.Hand;
             hardButton.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold, GraphicsUnit.Point);
             hardButton.ForeColor = SystemColors.ActiveCaptionText;
-            hardButton.Location = new Point(207, 274);
+            hardButton.Location = new Point(181, 206);
+            hardButton.Margin = new Padding(3, 2, 3, 2);
             hardButton.Name = "hardButton";
-            hardButton.Size = new Size(155, 58);
+            hardButton.Size = new Size(136, 44);
             hardButton.TabIndex = 2;
             hardButton.Text = "HARD😡";
-            hardButton.UseVisualStyleBackColor = true;
-
+            hardButton.UseVisualStyleBackColor = false;
             // 
             // MenuForm
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             BackgroundImageLayout = ImageLayout.Stretch;
-            ClientSize = new Size(582, 453);
+            ClientSize = new Size(509, 340);
             Controls.Add(hardButton);
             Controls.Add(easyButton);
             Controls.Add(titleLabel);
             ForeColor = SystemColors.ControlLightLight;
-            Margin = new Padding(3, 4, 3, 4);
             Name = "MenuForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Form1";

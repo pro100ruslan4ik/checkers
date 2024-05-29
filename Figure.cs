@@ -18,12 +18,13 @@ namespace Checkers
     }
     internal class Figure
     {
-        public Figure(FigureColor fc)
+        public Figure(FigureColor fc, FigureType ft)
         {
             figureColor = fc;
+            figureType = ft;
         }
-       
-        FigureType figureType { get; set; }
-        FigureColor figureColor { get; set; }
+
+        FigureType figureType;
+        FigureColor figureColor;
     }
 }

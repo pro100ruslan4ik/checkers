@@ -11,8 +11,12 @@ namespace Checkers
         {
             MainWindowForm mainWindow = new MainWindowForm();
             mainWindow.Show();
+            mainWindow.FormClosing += MainWindowForm_Closing;
             this.Hide();
-
+        }
+        private void MainWindowForm_Closing(object sender, FormClosingEventArgs e)
+        {
+            this.Close();
         }
     }
 }
