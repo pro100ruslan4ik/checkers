@@ -18,5 +18,10 @@ namespace Checkers
         {
             this.Close();
         }
+
+        private void hardButton_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

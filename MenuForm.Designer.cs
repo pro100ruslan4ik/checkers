@@ -76,6 +76,7 @@
             hardButton.TabIndex = 2;
             hardButton.Text = "HARD😡";
             hardButton.UseVisualStyleBackColor = false;
+            hardButton.Click += hardButton_Click;
             // 
             // MenuForm
             // 
@@ -88,6 +89,7 @@
             Controls.Add(easyButton);
             Controls.Add(titleLabel);
             ForeColor = SystemColors.ControlLightLight;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "MenuForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Form1";
