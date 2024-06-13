@@ -39,11 +39,10 @@
             titleLabel.Anchor = AnchorStyles.Top;
             titleLabel.AutoSize = true;
             titleLabel.BackColor = Color.FromArgb(0, 0, 0, 0);
-            titleLabel.BorderStyle = BorderStyle.Fixed3D;
             titleLabel.Font = new Font("Ink Free", 47.9999962F, FontStyle.Bold | FontStyle.Italic | FontStyle.Underline, GraphicsUnit.Point);
             titleLabel.Location = new Point(29, 26);
             titleLabel.Name = "titleLabel";
-            titleLabel.Size = new Size(459, 81);
+            titleLabel.Size = new Size(457, 79);
             titleLabel.TabIndex = 0;
             titleLabel.Text = "Checkers Delta";
             // 
@@ -89,10 +88,12 @@
             Controls.Add(easyButton);
             Controls.Add(titleLabel);
             ForeColor = SystemColors.ControlLightLight;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
             Name = "MenuForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Form1";
+            Text = "Checkers Delta";
             ResumeLayout(false);
             PerformLayout();
         }
