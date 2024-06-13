@@ -9,7 +9,7 @@
 
         int countEatSteps = 0;
         bool isMoving;
-        bool isContinue = false;
+        bool isContinueEat = false;
 
         Button prevButton;
         Button pressedButton;
@@ -19,13 +19,15 @@
         private int[,] board = new int[BOARD_SIZE, BOARD_SIZE];
         private Button[,] buttons = new Button[BOARD_SIZE, BOARD_SIZE];
 
-        private Image whiteChecker;
-        private Image whiteQueen;
+        private Image whiteCheckerImage;
+        private Image whiteQueenImage;
 
-        private Image blackChecker;
-        private Image blackQueen;
+        private Image blackCheckerImage;
+        private Image blackQueenImage; 
 
-
+        /// <summary>
+        /// Конструктор формы основного окна
+        /// </summary>
         public MainWindowForm()
         {
             InitializeComponent();
@@ -33,16 +35,18 @@
             this.Text = "Checkers Delta";
 
             Bitmap[] sprites = GetSprites();
-            whiteChecker = sprites[0];
-            whiteQueen = sprites[1];
-            blackChecker = sprites[2];
-            blackQueen = sprites[3];
-
+            whiteCheckerImage = sprites[0];
+            //whiteQueenImage = sprites[1];
+            blackCheckerImage = sprites[2];
+            //blackQueenImage = sprites[3];
 
 
             Init();
         }
 
+        /// <summary>
+        /// Инициализирует шашечную доску
+        /// </summary>
         private void Init()
         {
             currentPlayer = 1;
@@ -63,10 +67,13 @@
             CreateBoard();
         }
 
+        /// <summary>
+        /// Задает графические элементы доски
+        /// </summary>
         private void CreateBoard()
         {
-            this.Width = (BOARD_SIZE + 1) * CELL_SIZE;
-            this.Height = (BOARD_SIZE + 1) * CELL_SIZE;
+            this.Width = (BOARD_SIZE + 1) * CELL_SIZE - 32;
+            this.Height = (BOARD_SIZE + 1) * CELL_SIZE - 10;
 
             for (int col = 0; col < BOARD_SIZE; col++)
             {
@@ -78,12 +85,12 @@
                     button.Click += new EventHandler(OnCellClick);
 
                     if (board[col, row] == 1)
-                        button.Image = whiteChecker;
+                        button.Image = whiteCheckerImage;
 
                     if (board[col, row] == 2)
-                        button.Image = blackChecker;
+                        button.Image = blackCheckerImage;
 
-                    button.BackColor = GetPrevButtonColor(button);
+                    button.BackColor = GetButtonColorByCoordOnBoard(button);
                     button.ForeColor = Color.Orange;
 
                     buttons[col, row] = button;
@@ -92,6 +99,10 @@
                 }
             }
         }
+
+        /// <summary>
+        /// Окончание и сброс игры, если у одного из игроков не осталось фигур
+        /// </summary>
         private void ResetGame()
         {
             bool player1 = false;
@@ -105,41 +116,60 @@
                     if (board[i, j] == 2)
                         player2 = true;
                 }
-            if (!player1 || !player2)
+
+            if (!player1)
             {
+                MessageBox.Show("Черные победили!");
+                this.Controls.Clear();
+                Init();
+            }
+            else if (!player2)
+            {
+                MessageBox.Show("Белые победили!");
                 this.Controls.Clear();
                 Init();
             }
         }
+
+        /// <summary>
+        /// Сменить игрока
+        /// </summary>
         private void SwitchPlayer()
         {
             currentPlayer = currentPlayer == 1 ? 2 : 1;
             ResetGame();
         }
-        private Color GetPrevButtonColor(Button prevButton)
+
+        /// <summary>
+        /// Возвращает цвет кнопки, который она должна иметь на шашечной доске
+        /// </summary>
+        /// <param name="button"></param>
+        /// <returns>Color.Gray или Color.White</returns>
+        private Color GetButtonColorByCoordOnBoard(Button button)
         {
-            if ((prevButton.Location.Y / CELL_SIZE % 2) != 0 && (prevButton.Location.X / CELL_SIZE % 2) == 0)
-            {
-                return Color.Gray;
-            }
-            if ((prevButton.Location.Y / CELL_SIZE % 2) == 0 && (prevButton.Location.X / CELL_SIZE % 2) != 0)
+            if ((button.Location.Y + button.Location.X)/ CELL_SIZE % 2 != 0)
             {
                 return Color.Gray;
             }
             return Color.White;
         }
 
+        /// <summary>
+        /// Обработчик нажатия на клетку-кнопку
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnCellClick(object sender, EventArgs e)
         {
             if (prevButton != null)
-                prevButton.BackColor = GetPrevButtonColor(prevButton);
+                prevButton.BackColor = GetButtonColorByCoordOnBoard(prevButton);
 
             pressedButton = sender as Button;
             int pressedButtonOnBoard = board[pressedButton.Location.Y / CELL_SIZE, pressedButton.Location.X / CELL_SIZE];
 
             if (pressedButtonOnBoard != 0 && pressedButtonOnBoard == currentPlayer)
             {
-                CloseSteps();
+                ResetColorForAllButtons();
                 pressedButton.BackColor = Color.Orange;
                 DeactivateAllButtons();
                 pressedButton.Enabled = true;
@@ -152,9 +182,9 @@
 
                 if (isMoving)
                 {
-                    CloseSteps();
-                    pressedButton.BackColor = GetPrevButtonColor(pressedButton);
-                    ShowPossibleSteps();
+                    ResetColorForAllButtons();
+                    pressedButton.BackColor = GetButtonColorByCoordOnBoard(pressedButton);
+                    HighlightAttackingFigures();
                     isMoving = false;
                 }
                 else
@@ -164,10 +194,10 @@
             {
                 if (isMoving)
                 {
-                    isContinue = false;
+                    isContinueEat = false;
                     if (Math.Abs(pressedButton.Location.X / CELL_SIZE - prevButton.Location.X / CELL_SIZE) > 1)
                     {
-                        isContinue = true;
+                        isContinueEat = true;
                         DeleteEaten(pressedButton, prevButton);
                     }
 
@@ -182,11 +212,11 @@
                     pressedButton.Text = prevButton.Text;
                     prevButton.Text = "";
 
-                    SwitchButtonToCheat(pressedButton);
+                    PromoteToQueen(pressedButton);
                     countEatSteps = 0;
                     isMoving = false;
 
-                    CloseSteps();
+                    ResetColorForAllButtons();
                     DeactivateAllButtons();
 
                     if (pressedButton.Text == "D")
@@ -194,14 +224,14 @@
                     else
                         ShowSteps(pressedButton.Location.Y / CELL_SIZE, pressedButton.Location.X / CELL_SIZE);
 
-                    if (countEatSteps == 0 || !isContinue)
+                    if (countEatSteps == 0 || !isContinueEat)
                     {
-                        CloseSteps();
+                        ResetColorForAllButtons();
                         SwitchPlayer();
-                        ShowPossibleSteps();
-                        isContinue = false;
+                        HighlightAttackingFigures();
+                        isContinueEat = false;
                     }
-                    else if (isContinue)
+                    else if (isContinueEat)
                     {
                         pressedButton.BackColor = Color.Orange;
                         pressedButton.Enabled = true;
@@ -212,9 +242,13 @@
             prevButton = pressedButton;
         }
 
-        private void ShowPossibleSteps()
+        /// <summary>
+        /// Выделяет те фигуры, у которых есть съедобный ход (В самом начале хода), при наличии таковых
+        /// Делает ход таковой фигурой обязательным
+        /// </summary>
+        private void HighlightAttackingFigures()
         {
-            bool isOneStep = true;
+            bool isChecker_NotQueen = true;
             bool isEatStep = false;
             DeactivateAllButtons();
             for (int i = 0; i < BOARD_SIZE; i++)
@@ -224,10 +258,10 @@
                     if (board[i, j] == currentPlayer)
                     {
                         if (buttons[i, j].Text == "D")
-                            isOneStep = false;
+                            isChecker_NotQueen = false;
                         else
-                            isOneStep = true;
-                        if (IsButtonHasEatStep(i, j, isOneStep, new int[2] { 0, 0 }))
+                            isChecker_NotQueen = true;
+                        if (IsButtonHasEatStep(i, j, isChecker_NotQueen, new int[2] { 0, 0 }))
                         {
                             isEatStep = true;
                             buttons[i, j].Enabled = true;
@@ -239,7 +273,11 @@
                 ActivateAllButtons();
         }
 
-        private void SwitchButtonToCheat(Button button)
+        /// <summary>
+        /// Превращает шашку в дамку, изменяя текст кнопки на "D", если шашка оказалась на краю доски
+        /// </summary>
+        /// <param name="button">Кнопка, на которую ступила шашка</param>
+        private void PromoteToQueen(Button button)
         {
             if (board[button.Location.Y / CELL_SIZE, button.Location.X / CELL_SIZE] == 1 && button.Location.Y / CELL_SIZE == BOARD_SIZE - 1)
             {
@@ -249,9 +287,13 @@
             {
                 button.Text = "D";
             }
-
         }
 
+        /// <summary>
+        /// Удаляет шашку между конечной и начальной кнопками, а также шашку в начальной кнопке
+        /// </summary>
+        /// <param name="endButton"></param>
+        /// <param name="startButton"></param>
         private void DeleteEaten(Button endButton, Button startButton)
         {
             int count = Math.Abs(endButton.Location.Y / CELL_SIZE - startButton.Location.Y / CELL_SIZE);
@@ -279,22 +321,37 @@
             }
         }
 
-        private void ShowSteps(int iCurrFigure, int jCurrFigure, bool isOneStep = true)
+        /// <summary>
+        /// Показать возможные шаги, для текущей кнопки 
+        /// </summary>
+        /// <param name="iCurrFigure">Вертикальный индекс текущей кнопки</param>
+        /// <param name="jCurrFigure">Горизонтальный индекс текущей кнопки</param>
+        /// <param name="isChecker_NotQueen">Является шашкой - true, дамкой - false</param>
+        private void ShowSteps(int iCurrFigure, int jCurrFigure, bool isChecker_NotQueen = true)
         {
             simpleSteps.Clear();
-            ShowDiagonal(iCurrFigure, jCurrFigure, isOneStep);
+            ShowDiagonal(iCurrFigure, jCurrFigure, isChecker_NotQueen);
+
+            //Оставляем только съедобные ходы
             if (countEatSteps > 0)
                 CloseSimpleSteps(simpleSteps);
         }
 
-        private void ShowDiagonal(int IcurrFigure, int JcurrFigure, bool isOneStep = false)
+        /// <summary>
+        /// Вызывает метод DeterminePath во всех 4 направлениях
+        /// </summary>
+        /// <param name="IcurrFigure">Вертикальный индекс текущей кнопки</param>
+        /// <param name="JcurrFigure">Горизонтальный индекс текущей кнопки</param>
+        /// <param name="isChecker_NotQueen">Является шашкой - true, дамкой - false</param>
+        private void ShowDiagonal(int IcurrFigure, int JcurrFigure, bool isChecker_NotQueen = false)
         {
             int j;
 
+            //Вправо вверх
             j = JcurrFigure + 1;
             for (int i = IcurrFigure - 1; i >= 0; i--)
             {
-                if (currentPlayer == 1 && isOneStep && !isContinue) break;
+                if (currentPlayer == 1 && isChecker_NotQueen && !isContinueEat) break;
                 if (IsInsideBorders(i, j))
                 {
                     if (!DeterminePath(i, j))
@@ -304,14 +361,15 @@
                     j++;
                 else break;
 
-                if (isOneStep)
+                if (isChecker_NotQueen)
                     break;
             }
 
+            //Влево вверх
             j = JcurrFigure - 1;
             for (int i = IcurrFigure - 1; i >= 0; i--)
             {
-                if (currentPlayer == 1 && isOneStep && !isContinue) break;
+                if (currentPlayer == 1 && isChecker_NotQueen && !isContinueEat) break;
                 if (IsInsideBorders(i, j))
                 {
                     if (!DeterminePath(i, j))
@@ -321,14 +379,15 @@
                     j--;
                 else break;
 
-                if (isOneStep)
+                if (isChecker_NotQueen)
                     break;
             }
 
+            //Влево вниз
             j = JcurrFigure - 1;
             for (int i = IcurrFigure + 1; i < 8; i++)
             {
-                if (currentPlayer == 2 && isOneStep && !isContinue) break;
+                if (currentPlayer == 2 && isChecker_NotQueen && !isContinueEat) break;
                 if (IsInsideBorders(i, j))
                 {
                     if (!DeterminePath(i, j))
@@ -338,14 +397,15 @@
                     j--;
                 else break;
 
-                if (isOneStep)
+                if (isChecker_NotQueen)
                     break;
             }
 
+            //Вправо вниз
             j = JcurrFigure + 1;
             for (int i = IcurrFigure + 1; i < 8; i++)
             {
-                if (currentPlayer == 2 && isOneStep && !isContinue) break;
+                if (currentPlayer == 2 && isChecker_NotQueen && !isContinueEat) break;
                 if (IsInsideBorders(i, j))
                 {
                     if (!DeterminePath(i, j))
@@ -355,14 +415,23 @@
                     j++;
                 else break;
 
-                if (isOneStep)
+                if (isChecker_NotQueen)
                     break;
             }
         }
 
+        /// <summary>
+        /// Определяет, можно ли переместить шашку на заданную кнопку. Если она пуста, то делает кнопку активной для перемещения.
+        /// Если не пуста, то вызывает показ возможных съедобных ходов
+        /// </summary>
+        /// <param name="ti"></param>
+        /// <param name="tj"></param>
+        /// <returns></returns>
         private bool DeterminePath(int ti, int tj)
         {
-            if (board[ti, tj] == 0 && !isContinue)
+            //Если в этом направлении соседняя клетка свободна и она еще никого не ела,
+            //то красим ее в желтый, включаем ее, а также добавляем в простые ходы
+            if (board[ti, tj] == 0 && !isContinueEat)
             {
                 buttons[ti, tj].BackColor = Color.Yellow;
                 buttons[ti, tj].Enabled = true;
@@ -370,6 +439,7 @@
             }
             else
             {
+                //Если сосед - враг, то вызываем метод показывающий возможный съедобный ход в этом направлении
                 if (board[ti, tj] != currentPlayer)
                 {
                     if (pressedButton.Text == "D")
@@ -383,8 +453,16 @@
             return true;
         }
 
-        private void ShowProceduralEat(int i, int j, bool isOneStep = true)
+        /// <summary>
+        /// Показывает возможные съедобные ходы с нажатой кнопки в сторону кнопки, заданной координатами i и j. 
+        /// Приоритет отдается ходам, которые имеют продолжение
+        /// </summary>
+        /// <param name="i">Вертикальный индекс соседней кнопки, на которую можно сходить</param>
+        /// <param name="j">Горизонтальный индекс соседней кнопки, на которую можно сходить</param>
+        /// <param name="isChecker_NotQueen">Является шашкой - true, дамкой - false</param>
+        private void ShowProceduralEat(int i, int j, bool isChecker_NotQueen = true)
         {
+            //Вычисление направления, в котором будет совершен ход 
             int dirX = i - pressedButton.Location.Y / CELL_SIZE;
             int dirY = j - pressedButton.Location.X / CELL_SIZE;
 
@@ -394,29 +472,29 @@
             int il = i;
             int jl = j;
 
-            bool isEmpty = true;
+            bool NoEnemyInThisDir = true;
 
             while (IsInsideBorders(il, jl))
             {
                 if (board[il, jl] != 0 && board[il, jl] != currentPlayer)
                 {
-                    isEmpty = false;
+                    NoEnemyInThisDir = false;
                     break;
                 }
                 il += dirX;
                 jl += dirY;
 
-                if (isOneStep)
+                if (isChecker_NotQueen)
                     break;
-
             }
 
-            if (isEmpty)
+            if (NoEnemyInThisDir)
                 return;
 
-            List<Button> toClose = new List<Button>();
+            List<Button> buttonsForNextEatStep = new List<Button>();
 
-            bool closeSimple = false;
+            //Нужно ли закрыть простые ходы
+            bool needCloseSimple = false;
 
             int ik = il + dirX;
             int jk = jl + dirY;
@@ -425,13 +503,14 @@
             {
                 if (board[ik, jk] == 0)
                 {
-                    if (IsButtonHasEatStep(ik, jk, isOneStep, new int[2] { dirX, dirY }))
+                    //Если нашелся ход с серией убийств, то нужно закрыть простые ходы
+                    if (IsButtonHasEatStep(ik, jk, isChecker_NotQueen, new int[2] { dirX, dirY }))
                     {
-                        closeSimple = true;
+                        needCloseSimple = true;
                     }
                     else
                     {
-                        toClose.Add(buttons[ik, jk]);
+                        buttonsForNextEatStep.Add(buttons[ik, jk]);
                     }
                     buttons[ik, jk].BackColor = Color.Yellow;
                     buttons[ik, jk].Enabled = true;
@@ -440,149 +519,187 @@
                 else
                     break;
 
-                if (isOneStep)
+                if (isChecker_NotQueen)
                     break;
 
                 jk += dirY;
                 ik += dirX;
             }
 
-            if (closeSimple && toClose.Count > 0)
+            //Если нашелся сложный ход, а мы знаем, что buttonsForNextEatStep содержит только простые ходы, то мы их скрываем
+            if (needCloseSimple && buttonsForNextEatStep.Count > 0)
             {
-                CloseSimpleSteps(toClose);
+                CloseSimpleSteps(buttonsForNextEatStep);
             }
 
         }
 
+        /// <summary>
+        /// Закрывает ходы с низким приоритетом, то есть не дает сходить на кнопки, после которых не будет 
+        /// возможности съесть еще одну шашку, если таковые ходы имеются. Задает значение свойства Enabled как false 
+        /// для полученных кнопок и возвращает их исходный цвет
+        /// </summary>
+        /// <param name="simpleSteps">Список кнопок простых ходов, которые не имеют продолжения</param>
         private void CloseSimpleSteps(List<Button> simpleSteps)
         {
             if (simpleSteps.Count > 0)
             {
                 for (int i = 0; i < simpleSteps.Count; i++)
                 {
-                    simpleSteps[i].BackColor = GetPrevButtonColor(simpleSteps[i]);
+                    simpleSteps[i].BackColor = GetButtonColorByCoordOnBoard(simpleSteps[i]);
                     simpleSteps[i].Enabled = false;
                 }
             }
         }
 
-        private bool IsButtonHasEatStep(int IcurrFigure, int JcurrFigure, bool isOneStep, int[] dir)
+        /// <summary>
+        /// Проверяет, есть ли у фигуры в нажатой кнопке ходы, в которых можно съесть шашку противника
+        /// </summary>
+        /// <param name="IcurrFigure">Горизонтальный индекс фигуры</param>
+        /// <param name="JcurrFigure">Вертикальный индекс фигуры</param>
+        /// <param name="isChecker_NotQueen">Является шашкой - true, дамкой - false</param>
+        /// <param name="dirPrev">Массив из 2 элементов - направление по i и j сделанного хода (предыдущего съедания в этом ходу)</param>
+        /// <returns></returns>
+        private bool IsButtonHasEatStep(int IcurrFigure, int JcurrFigure, bool isChecker_NotQueen, int[] dirPrev)
         {
-            bool eatStep = false;
+            bool hasEatStep = false;
             int j;
 
+            //i направлено сверху вниз      при уменьшении идем вверх
+            //j направлено слева направо    при увеличении идем вправо
+
+            //Проверка хода вправо вверх
             j = JcurrFigure + 1;
             for (int i = IcurrFigure - 1; i >= 0; i--)
             {
-                if (currentPlayer == 1 && isOneStep && !isContinue) break;
-                if (dir[0] == 1 && dir[1] == -1 && !isOneStep) break;
+                //Если это первый игрок, то его шашка не может сходить вправо вверх, если она не дамка или не совершает серию убийств
+                if (currentPlayer == 1 && isChecker_NotQueen && !isContinueEat) break;
+
+                //Если мы в этом ходу уже съели шашку в направлении вниз влево, то проверять в этом случае не нужно для обычной шашки
+                if (dirPrev[0] == 1 && dirPrev[1] == -1 && !isChecker_NotQueen) break;
+
+                
                 if (IsInsideBorders(i, j))
                 {
                     if (board[i, j] != 0 && board[i, j] != currentPlayer)
                     {
-                        eatStep = true;
+                        hasEatStep = true;
                         if (!IsInsideBorders(i - 1, j + 1))
-                            eatStep = false;
+                            hasEatStep = false;
                         else if (board[i - 1, j + 1] != 0)
-                            eatStep = false;
+                            hasEatStep = false;
                         else
-                            return eatStep;
+                            return hasEatStep;
                     }
                 }
                 if (j < 7)
                     j++;
                 else break;
 
-                if (isOneStep)
+                //Если проверяется шашка, то она проверяет только ближайшую клетку
+                if (isChecker_NotQueen)
                     break;
             }
 
+            //Проверка хода влево вверх
             j = JcurrFigure - 1;
             for (int i = IcurrFigure - 1; i >= 0; i--)
             {
-                if (currentPlayer == 1 && isOneStep && !isContinue) break;
-                if (dir[0] == 1 && dir[1] == 1 && !isOneStep) break;
+                if (currentPlayer == 1 && isChecker_NotQueen && !isContinueEat) break;
+                if (dirPrev[0] == 1 && dirPrev[1] == 1 && !isChecker_NotQueen) break;
                 if (IsInsideBorders(i, j))
                 {
                     if (board[i, j] != 0 && board[i, j] != currentPlayer)
                     {
-                        eatStep = true;
+                        hasEatStep = true;
                         if (!IsInsideBorders(i - 1, j - 1))
-                            eatStep = false;
+                            hasEatStep = false;
                         else if (board[i - 1, j - 1] != 0)
-                            eatStep = false;
+                            hasEatStep = false;
                         else
-                            return eatStep;
+                            return hasEatStep;
                     }
                 }
                 if (j > 0)
                     j--;
                 else break;
 
-                if (isOneStep)
+                if (isChecker_NotQueen)
                     break;
             }
 
+            //Проверка хода влево вниз
             j = JcurrFigure - 1;
             for (int i = IcurrFigure + 1; i < 8; i++)
             {
-                if (currentPlayer == 2 && isOneStep && !isContinue) break;
-                if (dir[0] == -1 && dir[1] == 1 && !isOneStep) break;
+                if (currentPlayer == 2 && isChecker_NotQueen && !isContinueEat) break;
+                if (dirPrev[0] == -1 && dirPrev[1] == 1 && !isChecker_NotQueen) break;
                 if (IsInsideBorders(i, j))
                 {
                     if (board[i, j] != 0 && board[i, j] != currentPlayer)
                     {
-                        eatStep = true;
+                        hasEatStep = true;
                         if (!IsInsideBorders(i + 1, j - 1))
-                            eatStep = false;
+                            hasEatStep = false;
                         else if (board[i + 1, j - 1] != 0)
-                            eatStep = false;
+                            hasEatStep = false;
                         else
-                            return eatStep;
+                            return hasEatStep;
                     }
                 }
                 if (j > 0)
                     j--;
                 else break;
 
-                if (isOneStep)
+                if (isChecker_NotQueen)
                     break;
             }
 
+            //Проверка хода вправо вниз
             j = JcurrFigure + 1;
             for (int i = IcurrFigure + 1; i < 8; i++)
             {
-                if (currentPlayer == 2 && isOneStep && !isContinue) break;
-                if (dir[0] == -1 && dir[1] == -1 && !isOneStep) break;
+                if (currentPlayer == 2 && isChecker_NotQueen && !isContinueEat) break;
+                if (dirPrev[0] == -1 && dirPrev[1] == -1 && !isChecker_NotQueen) break;
                 if (IsInsideBorders(i, j))
                 {
                     if (board[i, j] != 0 && board[i, j] != currentPlayer)
                     {
-                        eatStep = true;
+                        hasEatStep = true;
                         if (!IsInsideBorders(i + 1, j + 1))
-                            eatStep = false;
+                            hasEatStep = false;
                         else if (board[i + 1, j + 1] != 0)
-                            eatStep = false;
+                            hasEatStep = false;
                         else
-                            return eatStep;
+                            return hasEatStep;
                     }
                 }
                 if (j < 7)
                     j++;
                 else break;
 
-                if (isOneStep)
+                if (isChecker_NotQueen)
                     break;
             }
 
-            return eatStep;
+            return hasEatStep;
         }
-        private void CloseSteps()
+
+        /// <summary>
+        /// Сбрасывает цвет всех кнопок в изначальные для шашечного поля цвета
+        /// </summary>
+        private void ResetColorForAllButtons()
         {
             for (int col = 0; col < BOARD_SIZE; col++)
                 for (int row = 0; row < BOARD_SIZE; row++)
-                    buttons[col, row].BackColor = GetPrevButtonColor(buttons[col, row]);
+                    buttons[col, row].BackColor = GetButtonColorByCoordOnBoard(buttons[col, row]);
         }
+
+        /// <summary>
+        /// Проверка на вхождение индексов в границы доски
+        /// </summary>
+        /// <param name="tX">Горизонтальный индекс</param>
+        /// <param name="tY">Вертикальный индекс</param>
         private bool IsInsideBorders(int tX, int tY)
         {
             if (tX >= BOARD_SIZE || tX < 0 || tY >= BOARD_SIZE || tY < 0)
@@ -592,12 +709,19 @@
             return true;
         }
 
+        /// <summary>
+        /// Изменяет свойство Enabled всех кнопок на false
+        /// </summary>
         private void DeactivateAllButtons()
         {
             for (int col = 0; col < BOARD_SIZE; col++)
                 for (int row = 0; row < BOARD_SIZE; row++)
                     buttons[col, row].Enabled = false;
         }
+
+        /// <summary>
+        /// Изменяет свойство Enabled всех кнопок на true
+        /// </summary>
         private void ActivateAllButtons()
         {
             for (int col = 0; col < BOARD_SIZE; col++)
@@ -605,6 +729,9 @@
                     buttons[col, row].Enabled = true;
         }
 
+        /// <summary>
+        /// Возвращает массив картинок фигур
+        /// </summary>
         private Bitmap[] GetSprites()
         {
             Bitmap spriteSheet = new Bitmap(@"C:\Users\Ruslan\source\repos\Checkers\pixelCheckers _v1.0\checkers_topDown.png");
