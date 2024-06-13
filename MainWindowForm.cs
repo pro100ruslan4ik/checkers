@@ -23,7 +23,7 @@
         private Image whiteQueenImage;
 
         private Image blackCheckerImage;
-        private Image blackQueenImage; 
+        private Image blackQueenImage;
 
         /// <summary>
         /// Конструктор формы основного окна
@@ -151,7 +151,7 @@
         /// <returns>Color.Gray или Color.White</returns>
         private Color GetButtonColorByCoordOnBoard(Button button)
         {
-            if ((button.Location.Y + button.Location.X)/ CELL_SIZE % 2 != 0)
+            if ((button.Location.Y + button.Location.X) / CELL_SIZE % 2 != 0)
             {
                 return Color.Gray;
             }
@@ -582,7 +582,7 @@
                 //Если мы в этом ходу уже съели шашку в направлении вниз влево, то проверять в этом случае не нужно для обычной шашки
                 if (dirPrev[0] == 1 && dirPrev[1] == -1 && !isChecker_NotQueen) break;
 
-                
+
                 if (IsInsideBorders(i, j))
                 {
                     if (board[i, j] != 0 && board[i, j] != currentPlayer)
