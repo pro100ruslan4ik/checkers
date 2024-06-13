@@ -9,19 +9,19 @@ namespace Checkers
 
         private void EasyButton_Click(object sender, EventArgs e)
         {
-            MainWindowForm mainWindow = new MainWindowForm();
-            mainWindow.Show();
-            mainWindow.FormClosing += MainWindowForm_Closing;
-            this.Hide();
+
         }
         private void MainWindowForm_Closing(object sender, FormClosingEventArgs e)
         {
             this.Close();
         }
 
-        private void hardButton_Click(object sender, EventArgs e)
+        private void PvP_Button_Click(object sender, EventArgs e)
         {
-
+            MainWindowForm mainWindow = new MainWindowForm();
+            mainWindow.Show();
+            mainWindow.FormClosing += MainWindowForm_Closing;
+            this.Hide();
         }
     }
 }

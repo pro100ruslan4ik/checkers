@@ -31,7 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MenuForm));
             titleLabel = new Label();
             easyButton = new Button();
-            hardButton = new Button();
+            pvpButton = new Button();
             SuspendLayout();
             // 
             // titleLabel
@@ -57,26 +57,26 @@
             easyButton.ForeColor = SystemColors.ActiveCaptionText;
             easyButton.Location = new Point(181, 128);
             easyButton.Name = "easyButton";
-            easyButton.Size = new Size(136, 43);
+            easyButton.Size = new Size(144, 43);
             easyButton.TabIndex = 1;
-            easyButton.Text = "EASY👍";
+            easyButton.Text = "Coming Soon👍";
             easyButton.UseVisualStyleBackColor = false;
             easyButton.Click += EasyButton_Click;
             // 
-            // hardButton
+            // pvpButton
             // 
-            hardButton.BackColor = Color.FromArgb(253, 230, 230);
-            hardButton.Cursor = Cursors.Hand;
-            hardButton.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold, GraphicsUnit.Point);
-            hardButton.ForeColor = SystemColors.ActiveCaptionText;
-            hardButton.Location = new Point(181, 206);
-            hardButton.Margin = new Padding(3, 2, 3, 2);
-            hardButton.Name = "hardButton";
-            hardButton.Size = new Size(136, 44);
-            hardButton.TabIndex = 2;
-            hardButton.Text = "HARD😡";
-            hardButton.UseVisualStyleBackColor = false;
-            hardButton.Click += hardButton_Click;
+            pvpButton.BackColor = Color.FromArgb(253, 230, 230);
+            pvpButton.Cursor = Cursors.Hand;
+            pvpButton.Font = new Font("Arial Narrow", 13.8F, FontStyle.Bold, GraphicsUnit.Point);
+            pvpButton.ForeColor = SystemColors.ActiveCaptionText;
+            pvpButton.Location = new Point(181, 206);
+            pvpButton.Margin = new Padding(3, 2, 3, 2);
+            pvpButton.Name = "pvpButton";
+            pvpButton.Size = new Size(144, 44);
+            pvpButton.TabIndex = 2;
+            pvpButton.Text = "😡 vs 😡";
+            pvpButton.UseVisualStyleBackColor = false;
+            pvpButton.Click += PvP_Button_Click;
             // 
             // MenuForm
             // 
@@ -85,7 +85,7 @@
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(509, 340);
-            Controls.Add(hardButton);
+            Controls.Add(pvpButton);
             Controls.Add(easyButton);
             Controls.Add(titleLabel);
             ForeColor = SystemColors.ControlLightLight;
@@ -101,6 +101,6 @@
 
         private Label titleLabel;
         private Button easyButton;
-        private Button hardButton;
+        private Button pvpButton;
     }
 }

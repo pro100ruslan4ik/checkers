@@ -75,6 +75,9 @@
             this.Width = (BOARD_SIZE + 1) * CELL_SIZE - 32;
             this.Height = (BOARD_SIZE + 1) * CELL_SIZE - 10;
 
+            string cursorPath = @"C:\Users\Ruslan\source\repos\Checkers\Resources\cursor-_1_.cur";
+            Cursor customCursorForButtons = new Cursor(cursorPath);
+
             for (int col = 0; col < BOARD_SIZE; col++)
             {
                 for (int row = 0; row < BOARD_SIZE; row++)
@@ -83,6 +86,7 @@
                     button.Location = new Point(row * CELL_SIZE, col * CELL_SIZE);
                     button.Size = new Size(CELL_SIZE, CELL_SIZE);
                     button.Click += new EventHandler(OnCellClick);
+                    button.Cursor = customCursorForButtons;
 
                     if (board[col, row] == 1)
                         button.Image = whiteCheckerImage;

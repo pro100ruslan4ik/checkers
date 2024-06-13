@@ -9,7 +9,7 @@ namespace Checkers
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            Application.Run(new MainWindowForm());
+            Application.Run(new MenuForm());
         }
     }
 }
